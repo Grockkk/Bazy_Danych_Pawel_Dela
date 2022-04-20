@@ -121,7 +121,7 @@ SELECT nazwisko,adres FROM rozliczenia.pracownicy;
 
 -- Wyœwietlanie daty u¿ywaj¹c funkcji DATEPART
 
-SELECT DATEPART(WEEKDAY ,[data]) AS Dzieñ_tygodnia,DATEPART(MM ,[data]) AS Miesi¹c  FROM rozliczenia.godziny;
+SELECT DATEPART(DW ,data) AS Dzieñ_tygodnia,DATEPART(MM ,data) AS Miesi¹c  FROM rozliczenia.godziny;
 
 -- Zamiana kwoty na kwote brutto
 
