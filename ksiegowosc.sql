@@ -275,17 +275,27 @@ SELECT COUNT(ksiegowosc.premie.kwota) AS 'iloœæ premi na stanowisku',stanowisko
 
 -- h) Usuñ wszystkich pracowników maj¹cych pensjê mniejsz¹ ni¿ 1200 z³.
 
-ALTER TABLE ksiegowosc.godziny DROP CONSTRAINT id_pracownika;
-ALTER TABLE ksiegowosc.wynagrodzenie DROP CONSTRAINT id_pracownika;
+ALTER TABLE ksiegowosc.godziny DROP COLUMN id_pracownika;
+ALTER TABLE ksiegowosc.wynagrodzenie DROP COLUMN id_pracownika;
 DELETE ksiegowosc.pracownicy  FROM ksiegowosc.pracownicy AS pracownicy
 INNER JOIN ksiegowosc.wynagrodzenie AS wynagrodzenie ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika
 INNER JOIN ksiegowosc.pensje AS pensje ON pensje.id_pensji = wynagrodzenie.id_pensji
-WHERE kwota < 1200;
+WHERE kwota < '1200';
 
 -- access
 DELETE pracownicy.id_pracownika, pensje.kwota
 FROM pracownicy INNER JOIN (pensje INNER JOIN wynagrodzenie ON pensje.id_pensji = wynagrodzenie.id_pensji) ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika
-WHERE (((pensje.kwota)<1200));
+WHERE (((pensje.kwota)<'1200'));
+
+-- 
+
+ALTER TABLE ksiegowosc.godziny DROP CONSTRAINT godziny_id_pracownika_fkey;
+ALTER TABLE ksiegowosc.wynagrodzenie DROP CONSTRAINT wynagrodzenie_id_pracownika_fkey;
+DELETE FROM ksiegowosc.pracownicy
+USING ksiegowosc.pensja,ksiegowosc.wynagrodzenie
+WHERE wynagrodzenie.id_pracownika=pracownicy.id_pracownika 
+AND pensja.id_pensji=wynagrodzenie.id_pensji
+AND pensja.kwota < '1200';
 
 
 DROP TABLE ksiegowosc.pracownicy;
