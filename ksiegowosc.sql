@@ -194,11 +194,11 @@ SELECT ksiegowosc.pracownicy.id_pracownika
 
 -- d) Wyœwietl pracowników, których pierwsza litera imienia zaczyna siê na literê ‘J’. 
 
-SELECT imie FROM ksiegowosc.pracownicy WHERE imie LIKE 'J%';
+SELECT id_pracownika,imie, nazwisko FROM ksiegowosc.pracownicy WHERE imie LIKE 'J%';
 
 -- e) Wyœwietl pracowników, których nazwisko zawiera literê ‘n’ oraz imiê koñczy siê na literê ‘a’
 
-SELECT nazwisko FROM ksiegowosc.pracownicy WHERE nazwisko LIKE '%n%a';
+SELECT imie, nazwisko FROM ksiegowosc.pracownicy WHERE nazwisko LIKE '%n%a';
 
 -- f) Wyœwietl imiê i nazwisko pracowników oraz liczbê ich nadgodzin, przyjmuj¹c, i¿ standardowy czas pracy to 160 h miesiêcznie
 
@@ -230,7 +230,7 @@ SELECT ksiegowosc.pracownicy.id_pracownika , ksiegowosc.pracownicy.imie, ksiegow
 	FROM ((ksiegowosc.wynagrodzenie 
 	INNER JOIN ksiegowosc.pracownicy ON ksiegowosc.wynagrodzenie.id_pracownika = ksiegowosc.pracownicy.id_pracownika)
 	INNER JOIN ksiegowosc.pensje ON wynagrodzenie.id_pensji = pensje.id_pensji)
-	ORDER BY ksiegowosc.pensje.kwota ASC;
+	ORDER BY ksiegowosc.pensje.kwota ;
 
 -- j) Uszereguj pracowników wed³ug pensji i premii malej¹co.
 
@@ -255,11 +255,11 @@ SELECT MIN(ksiegowosc.pensje.kwota) AS 'Najmnnijeszy zarobek na stanowisku Anali
 -- m) Policz sumê wszystkich wynagrodzeñ.
 
 SELECT SUM(ksiegowosc.pensje.kwota + ksiegowosc.premie.kwota) AS 'Suma wszystkich wynagrodzen'
-	FROM ((ksiegowosc.wynagrodzenie
-	INNER JOIN ksiegowosc.pensje ON wynagrodzenie.id_pensji = pensje.id_pensji)
-	INNER JOIN ksiegowosc.premie ON wynagrodzenie.id_premii = premie.id_premii);
+	FROM ksiegowosc.wynagrodzenie
+	INNER JOIN ksiegowosc.pensje ON wynagrodzenie.id_pensji = pensje.id_pensji
+	INNER JOIN ksiegowosc.premie ON wynagrodzenie.id_premii = premie.id_premii;
 
--- f) Policz sumê wynagrodzeñ w ramach danego stanowiska.
+-- n) Policz sumê wynagrodzeñ w ramach danego stanowiska.
 SELECT SUM(kwota) AS 'Suma wynagrodzen na stanowisku', stanowisko 
 	FROM ksiegowosc.pensje
 	GROUP BY stanowisko;
@@ -275,8 +275,12 @@ SELECT COUNT(ksiegowosc.premie.kwota) AS 'iloœæ premi na stanowisku',stanowisko
 
 -- h) Usuñ wszystkich pracowników maj¹cych pensjê mniejsz¹ ni¿ 1200 z³.
 
-ALTER TABLE ksiegowosc.godziny DROP COLUMN id_pracownika;
-ALTER TABLE ksiegowosc.wynagrodzenie DROP COLUMN id_pracownika;
+
+
+--
+
+ALTER TABLE ksiegowosc.godziny DROP CONSTRAINT id_pracownika;
+ALTER TABLE ksiegowosc.wynagrodzenie DROP CONSTRAINT id_pracownika;
 DELETE ksiegowosc.pracownicy  FROM ksiegowosc.pracownicy AS pracownicy
 INNER JOIN ksiegowosc.wynagrodzenie AS wynagrodzenie ON pracownicy.id_pracownika = wynagrodzenie.id_pracownika
 INNER JOIN ksiegowosc.pensje AS pensje ON pensje.id_pensji = wynagrodzenie.id_pensji
@@ -292,10 +296,15 @@ WHERE (((pensje.kwota)<'1200'));
 ALTER TABLE ksiegowosc.godziny DROP CONSTRAINT godziny_id_pracownika_fkey;
 ALTER TABLE ksiegowosc.wynagrodzenie DROP CONSTRAINT wynagrodzenie_id_pracownika_fkey;
 DELETE FROM ksiegowosc.pracownicy
-USING ksiegowosc.pensja,ksiegowosc.wynagrodzenie
+USING (ksiegowosc.pensja,ksiegowosc.wynagrodzenie)
 WHERE wynagrodzenie.id_pracownika=pracownicy.id_pracownika 
 AND pensja.id_pensji=wynagrodzenie.id_pensji
 AND pensja.kwota < '1200';
+
+
+
+
+
 
 
 DROP TABLE ksiegowosc.pracownicy;
