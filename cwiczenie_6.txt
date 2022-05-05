@@ -10,6 +10,8 @@ cena_produktu,  ilość -> suma_netto
 suma_netto, VAT -> suma_brutto
 suma_netto, ilość -> cena_produktu
 VAT -> nazwa_produktu
+id_klienta , data_zamowienia ->nazwa_produktu, cena_produktu, ilość, VAT, suma_brutto, suma_netto
+
 
 
 2)
