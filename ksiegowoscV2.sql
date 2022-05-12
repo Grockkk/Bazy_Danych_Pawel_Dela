@@ -114,9 +114,9 @@ INSERT INTO ksiegowosc.pensje VALUES('PE10', 'Kierownik Zespo³u Badawczego',1090
 
 INSERT INTO ksiegowosc.premie VALUES('PR01' , NULL, NULL);
 
-INSERT INTO ksiegowosc.premie VALUES('PR02', 'Premia uznaniowa', '1000');
+INSERT INTO ksiegowosc.premie VALUES('PR02', 'Premia uznaniowa', '1050');
 
-INSERT INTO ksiegowosc.premie VALUES('PR03', 'Premia uznaniowa', '1050');
+INSERT INTO ksiegowosc.premie VALUES('PR03', 'Premia uznaniowa', '1100');
 
 INSERT INTO ksiegowosc.premie VALUES('PR04', NULL, NULL);
 
@@ -124,13 +124,13 @@ INSERT INTO ksiegowosc.premie VALUES('PR05','Premia uznaniowa', '1000');
 
 INSERT INTO ksiegowosc.premie VALUES('PR06',NULL, NULL);
 
-INSERT INTO ksiegowosc.premie VALUES('PR07','Premia uznaniowa', '1000');
+INSERT INTO ksiegowosc.premie VALUES('PR07','Premia uznaniowa', '1050');
 
 INSERT INTO ksiegowosc.premie VALUES('PR08', NULL, NULL);
 
-INSERT INTO ksiegowosc.premie VALUES('PR09', 'Premia uznaniowa', '1100');
+INSERT INTO ksiegowosc.premie VALUES('PR09', 'Premia uznaniowa', '1200');
 
-INSERT INTO ksiegowosc.premie VALUES('PR10', 'Premia uznaniowa', '1200');
+INSERT INTO ksiegowosc.premie VALUES('PR10', 'Premia uznaniowa', '1100');
 
 -- Dodawanie rekordów do wynagordzeñ
 
@@ -165,7 +165,7 @@ UPDATE Ksiegowosc.Pracownicy
 	SELECT CONCAT('+48',SUBSTRING(telefon, 1, 9)) AS  telefon_Polska)
 	WHERE ksiegowosc.pracownicy.telefon IS NOT NULL;
 
-
+SELECT * FROM ksiegowosc.pracownicy;
 
 --b)
 
@@ -211,8 +211,20 @@ LEFT OUTER JOIN ksiegowosc.pensje ON pensje.id_pensji = wynagrodzenie.id_pensji
 
 --f)
 
+ALTER TABLE ksiegowosc.premie
+ADD nadgodziny INTEGER;
 
+UPDATE ksiegowosc.premie
+SET nadgodziny = premie.kwota - 1000 
+WHERE ksiegowosc.premie.kwota> 0
 
+UPDATE ksiegowosc.premie
+SET kwota = 0
+WHERE kwota IS NULL;
+
+UPDATE ksiegowosc.premie
+SET nadgodziny = premie.kwota
+WHERE ksiegowosc.premie.kwota = 0;
 
 SELECT 'Pracownik ' 
 + [imie] 
@@ -221,14 +233,14 @@ SELECT 'Pracownik '
 + ', w dniu ' 
 + CONVERT(VARCHAR(10),[godziny].[data]) 
 + ' otrzyma³ pensjê ca³kowit¹ na kwotê '  
-+ CONVERT(VARCHAR(10),[premie].[kwota]) -- tu ma byæ suma
++ CONVERT(VARCHAR(10),[premie].[kwota] + [pensje].[kwota]) 
 + ' , gdzie wynagrodzenie zasadnicze wynosi³o: ' 
 + CONVERT(VARCHAR(10),[pensje].[kwota] )
 + ', premia: '
 + CONVERT(VARCHAR(10),[premie].[kwota] )
 +', nadgodziny: ' 
-+ CONVERT(VARCHAR(10),[godziny].[liczba_godzin])
-+ 'z³.' AS raport
++ CONVERT(VARCHAR(10),[premie].[nadgodziny] )
++ 'z³.' AS Raport
 FROM [ksiegowosc].[pracownicy] 
 INNER JOIN [ksiegowosc].[wynagrodzenie] ON [pracownicy].[id_pracownika] = [wynagrodzenie].[id_pracownika]
 INNER JOIN [ksiegowosc].[pensje] ON [wynagrodzenie].[id_pensji] = [pensje].[id_pensji]
